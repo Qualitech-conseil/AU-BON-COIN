@@ -7,10 +7,27 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #222;
+      margin: 0; padding: 2rem;
       color: white;
       text-align: center;
-      padding: 2rem;
+      min-height: 100vh;
+      position: relative;
+      background: none;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1950&q=80');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      filter: blur(8px);
+      opacity: 0.3;
+      z-index: -1;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
     }
     #logo {
       max-height: 120px;
@@ -18,42 +35,36 @@
     }
     button, a.button-link {
       display: inline-block;
-      background-color: gold;
-      border: none;
       padding: 1rem 2rem;
       font-weight: bold;
       font-size: 1.2rem;
       cursor: pointer;
       border-radius: 8px;
       margin-top: 1.5rem;
-      color: black;
-      text-decoration: none;
+      border: none;
     }
     a.button-link {
       background-color: #1a73e8;
       color: white;
+      text-decoration: none;
     }
-    #resetBtn {
-      background-color: #f44336;
-      color: white;
-      margin-top: 3rem;
+    button {
+      background-color: gold;
+      color: black;
     }
   </style>
 </head>
 <body>
+
   <img id="logo" src="logo-client.png" alt="Logo Client" />
   <h1>Pour jouer et tenter votre chance, vous devez d'abord laisser un avis Google</h1>
 
   <div id="btnContainer"></div>
 
-  <button id="resetBtn">Réinitialiser le processus (test)</button>
-
   <script>
     const btnContainer = document.getElementById('btnContainer');
-    const resetBtn = document.getElementById('resetBtn');
 
-    const avisClick = localStorage.getItem('avisGoogleClick') === 'true';
-    const avisLaissé = localStorage.getItem('avisGoogleLaissé') === 'true';
+    let avisClick = false;
 
     function createLeaveReviewButton() {
       const link = document.createElement('a');
@@ -63,17 +74,16 @@
       link.textContent = "Laisser un avis Google";
       link.className = "button-link";
       link.addEventListener('click', () => {
-        localStorage.setItem('avisGoogleClick', 'true');
-        // Pas de reload immédiat, on attend que l'utilisateur revienne
+        avisClick = true;
+        renderButtons();
       });
       return link;
     }
 
     function createConfirmButton() {
       const btn = document.createElement('button');
-      btn.textContent = "J'ai laissé mon avis et je veux tourner la roue";
+      btn.textContent = "Vous avez laissé un avis et vous voulez tourner la roue";
       btn.addEventListener('click', () => {
-        localStorage.setItem('avisGoogleLaissé', 'true');
         window.location.href = 'roue.html'; // adapte ce chemin vers ta page roue
       });
       return btn;
@@ -81,26 +91,15 @@
 
     function renderButtons() {
       btnContainer.innerHTML = '';
-      if (avisLaissé) {
-        btnContainer.innerHTML = '<p>Merci, vous pouvez maintenant tourner la roue.</p><button id="btnPlay">Tourner la roue</button>';
-        document.getElementById('btnPlay').addEventListener('click', () => {
-          window.location.href = 'roue.html'; // adapte ce chemin
-        });
-      } else {
+      if (!avisClick) {
         btnContainer.appendChild(createLeaveReviewButton());
-        if (avisClick) {
-          btnContainer.appendChild(createConfirmButton());
-        }
+      } else {
+        btnContainer.appendChild(createConfirmButton());
       }
     }
 
     renderButtons();
-
-    resetBtn.addEventListener('click', () => {
-      localStorage.removeItem('avisGoogleClick');
-      localStorage.removeItem('avisGoogleLaissé');
-      location.reload();
-    });
   </script>
+
 </body>
 </html>
