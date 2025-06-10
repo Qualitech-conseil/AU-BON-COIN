@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laisser un avis Google</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    #logo {
+      max-height: 120px;
+      margin-bottom: 1rem;
+    }
+    button, a.button-link {
+      display: inline-block;
+      background-color: gold;
+      border: none;
+      padding: 1rem 2rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      color: black;
+      text-decoration: none;
+    }
+    a.button-link {
+      background-color: #1a73e8;
+      color: white;
+    }
+    #resetBtn {
+      background-color: #f44336;
+      color: white;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <img id="logo" src="logo-client.png" alt="Logo Client" />
+  <h1>Pour jouer et tenter votre chance, vous devez d'abord laisser un avis Google</h1>
+
+  <div id="btnContainer"></div>
+
+  <button id="resetBtn">Réinitialiser le processus (test)</button>
+
+  <script>
+    const btnContainer = document.getElementById('btnContainer');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const avisClick = localStorage.getItem('avisGoogleClick') === 'true';
+    const avisLaissé = localStorage.getItem('avisGoogleLaissé') === 'true';
+
+    function createLeaveReviewButton() {
+      const link = document.createElement('a');
+      link.href = "https://search.google.com/local/writereview?placeid=ChIJj7ASL0pvsBIRzvSwwV6ekTQ&source=g.page.m.ia._&laa=nmx-review-solicitation-ia2"; // Remplace TON_PLACE_ID
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Laisser un avis Google";
+      link.className = "button-link";
+      link.addEventListener('click', () => {
+        localStorage.setItem('avisGoogleClick', 'true');
+        // Pas de reload immédiat, on attend que l'utilisateur revienne
+      });
+      return link;
+    }
+
+    function createConfirmButton() {
+      const btn = document.createElement('button');
+      btn.textContent = "J'ai laissé mon avis et je veux tourner la roue";
+      btn.addEventListener('click', () => {
+        localStorage.setItem('avisGoogleLaissé', 'true');
+        window.location.href = 'index.html'; // adapte ce chemin vers ta page roue
+      });
+      return btn;
+    }
+
+    function renderButtons() {
+      btnContainer.innerHTML = '';
+      if (avisLaissé) {
+        btnContainer.innerHTML = '<p>Merci, vous pouvez maintenant tourner la roue.</p><button id="btnPlay">Tourner la roue</button>';
+        document.getElementById('btnPlay').addEventListener('click', () => {
+          window.location.href = 'index.html'; // adapte ce chemin
+        });
+      } else {
+        btnContainer.appendChild(createLeaveReviewButton());
+        if (avisClick) {
+          btnContainer.appendChild(createConfirmButton());
+        }
+      }
+    }
+
+    renderButtons();
+
+    resetBtn.addEventListener('click', () => {
+      localStorage.removeItem('avisGoogleClick');
+      localStorage.removeItem('avisGoogleLaissé');
+      location.reload();
+    });
+  </script>
+</body>
+</html>
