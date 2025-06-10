@@ -74,7 +74,7 @@
       btn.textContent = "J'ai laissé mon avis et je veux tourner la roue";
       btn.addEventListener('click', () => {
         localStorage.setItem('avisGoogleLaissé', 'true');
-        window.location.href = 'index.html'; // adapte ce chemin vers ta page roue
+        window.location.href = 'roue.html'; // adapte ce chemin vers ta page roue
       });
       return btn;
     }
@@ -84,7 +84,7 @@
       if (avisLaissé) {
         btnContainer.innerHTML = '<p>Merci, vous pouvez maintenant tourner la roue.</p><button id="btnPlay">Tourner la roue</button>';
         document.getElementById('btnPlay').addEventListener('click', () => {
-          window.location.href = 'index.html'; // adapte ce chemin
+          window.location.href = 'roue.html'; // adapte ce chemin
         });
       } else {
         btnContainer.appendChild(createLeaveReviewButton());
