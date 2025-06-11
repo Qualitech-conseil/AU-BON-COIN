@@ -201,7 +201,12 @@
       ctx.font = "bold 14px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
+      
+ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(midAngle + Math.PI / 4); // rotation segment + 45°
 
+      
       const lines = splitTextTwoLines(ctx, segments[i], 120);
       const lineHeight = 18;
       const startY = y - (lines.length - 1) * lineHeight / 2;
