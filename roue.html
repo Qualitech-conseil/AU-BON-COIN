@@ -10,7 +10,7 @@
     font-family: Arial, sans-serif;
     color: white;
     min-height: 100vh;
-    background: url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1950&q=80') center/cover no-repeat fixed;
+    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') center/cover no-repeat fixed;
     position: relative;
   }
   body::before {
@@ -105,26 +105,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
-  // Vérification obligatoire : si pas d'avis validé, redirection vers la page avis
-  if (localStorage.getItem('avisGoogleLaissé') !== 'true') {
-    alert("Merci de laisser un avis Google avant de jouer.");
-    window.location.href = 'avis.html'; // adapte ce chemin si besoin
-  }
-
   const canvas = document.getElementById('wheel');
   const ctx = canvas.getContext('2d');
   const spinButton = document.getElementById('spinButton');
   const resultDisplay = document.getElementById('result');
   const indicator = document.getElementById('indicator');
 
-  const segments = [
-  "1 Cocktail", 
-  "Perdu", 
-  "1 dessert", 
-  "Perdu", 
-  "-5% sur addition", 
-  "Perdu"
-];
+  const segments = ["45g Chips", "Perdu", "1 tuile parmesan-truffe", "Perdu", "-5% prochain achat", "Perdu"];
   const colors = ["#F87171", "#60A5FA", "#FBBF24", "#34D399", "#A78BFA", "#F97316"];
 
   const totalSpinsKey = 'totalSpins';
@@ -153,6 +140,24 @@
   let isSpinning = false;
   let angle = 0;
 
+ // Découpage simple du texte en deux lignes max
+  function splitTextTwoLines(ctx, text, maxWidth) {
+    if (ctx.measureText(text).width <= maxWidth) return [text];
+    const words = text.split(' ');
+    let line1 = '';
+    let line2 = '';
+    for (let i=0; i < words.length; i++) {
+      const testLine = line1.length === 0 ? words[i] : line1 + ' ' + words[i];
+      if (ctx.measureText(testLine).width <= maxWidth) {
+        line1 = testLine;
+      } else {
+        line2 = words.slice(i).join(' ');
+        break;
+      }
+    }
+    return [line1, line2];
+  }
+  
   function drawWheel() {
     const centerX = 200;
     const centerY = 200;
@@ -161,10 +166,10 @@
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Dents à l'intérieur de la roue
+    // Dents autour de la roue (bien visibles)
     const teethCount = 60;
-    const outerRadius = radius;
-    const innerRadius = radius - 15;
+    const outerRadius = radius + 15;
+    const innerRadius = radius + 7;
     ctx.save();
     ctx.translate(centerX, centerY);
     for (let i = 0; i < teethCount; i++) {
@@ -186,19 +191,25 @@
       ctx.arc(centerX, centerY, radius, i * arc, (i + 1) * arc);
       ctx.lineTo(centerX, centerY);
       ctx.fill();
+// Position du texte : on calcule les coordonnées polaires
+      const midAngle = i * arc + arc / 2;
+      const textRadius = radius * 0.65;
+      const x = centerX + textRadius * Math.cos(midAngle);
+      const y = centerY + textRadius * Math.sin(midAngle);
 
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(i * arc + arc / 2);
       ctx.fillStyle = "#fff";
-      ctx.font = "bold 18px Arial";
+      ctx.font = "bold 14px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(segments[i], radius * 0.65, 0);
-      ctx.restore();
+
+      const lines = splitTextTwoLines(ctx, segments[i], 120);
+      const lineHeight = 18;
+      const startY = y - (lines.length - 1) * lineHeight / 2;
+      for (let j = 0; j < lines.length; j++) {
+        ctx.fillText(lines[j], x, startY + j * lineHeight);
+      }
     }
   }
-
   function updateIndicator(angleRad, spinning) {
     if (spinning) {
       const oscillation = Math.sin(angleRad * 15) * 15;
@@ -241,10 +252,13 @@
       chosenIndex = losingIndices[Math.floor(Math.random() * losingIndices.length)];
     }
 
+    // Log précis pour débugger
     console.log(`Spin #${totalSpins}: segment #${chosenIndex} - ${segments[chosenIndex]} - next gain à #${nextWinSpin}`);
 
     const arc = 360 / segments.length;
     const baseTurns = 10;
+    // On inverse l'angle pour corriger la direction et décalage 90deg
+    // Correction importante pour que l'indice corresponde bien à l'affichage
     const segmentAngle = 360 - (chosenIndex * arc + arc / 2) - 90;
     const randomOffset = (Math.random() * 10) - 5;
     const targetAngle = 360 * baseTurns + segmentAngle + randomOffset;
@@ -297,6 +311,13 @@
     }
     isSpinning = false;
   }
+
+  drawWheel();
+  spinButton.addEventListener("click", spin);
+</script>
+
+</body>
+</html>
 
   drawWheel();
   spinButton.addEventListener("click", spin);
